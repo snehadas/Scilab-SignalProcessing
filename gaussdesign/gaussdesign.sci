@@ -8,7 +8,7 @@ function filter_coeffs = gaussdesign(BwSt_prod, num_of_symb, samp_per_symb)
 //      num_of_symb: filter truncated to these many number of symbols
 //      samp_per_symb: each symbol represented by these many samples
 // Output: 
-//      filter:coeffs: returned filter coefficients
+//      filter_coeffs: returned filter coefficients
 
 
 
@@ -117,7 +117,7 @@ function checkIpValidity(variable, valid_class, properties)
         end
         
         if ~strcmpi(properties(jdx), 'positive') then
-            if variable < 0 then
+            if variable <= 0 then
                 error('Input should be positive');
             end
         end
