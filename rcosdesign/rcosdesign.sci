@@ -52,13 +52,19 @@ function h = rcosdesign(rollof_factor, num_of_symb, samp_per_symb, varargin)
     pr = (samp_per_symb*num_of_symb)/2;
     ax = (-pr:pr)/samp_per_symb;
     
-    if strcmpi(shape, 'normal') then
+    if ~strcmpi(shape, 'normal') then
         den = (1-(2*rollof_factor*ax).^2);
         id1 = find(abs(den) > sqrt(%eps));
-        filt_resp(id1) = sinc(ax(id1)).*(cos(%pi*rollof_factor*ax(id1))./den(id1))/samp_per_symb;
+        for idx = 1:length(id1)
+            filt_resp(id1(idx)) = sinc(ax(id1(idx))).*(cos(%pi*rollof_factor*ax(id1(idx)))./den(id1(idx)))/samp_per_symb;
+        end
+        
         id2 = 1:length(ax);
         id2(id1) = [];
-        filt_resp(id2) = rollof_factor*sin(%pi/(2*rollof_factor))/(samp_per_symb);
+        for idx = 1:length(id2)
+            filt_resp(id2(idx)) = rollof_factor*sin(%pi/(2*rollof_factor))/(samp_per_symb);
+        end
+        
         
     else
         id1 = find(ax == 0);
@@ -74,14 +80,21 @@ function h = rcosdesign(rollof_factor, num_of_symb, samp_per_symb, varargin)
         id = 1:length(ax);
         id([id1 id2]) = [];
         nid = ax(id);
+        a = (-4.*rollof_factor./samp_per_symb);
+        b = ( cos((1+rollof_factor).*%pi.*nid) + sin((1-rollof_factor).*%pi.*nid) ./ (4.*rollof_factor.*nid) );
+        c = (%pi .* ((4.*rollof_factor.*nid).^2 - 1));
         
-        b(id) = -4.*rollof_factor./samp_per_symb .* ( cos((1+rollof_factor).*%pi.*nid) + sin((1-rollof_factor).*%pi.*nid) ./ (4.*rollof_factor.*nid) ) ./ (%pi .* ((4.*rollof_factor.*nid).^2 - 1));
+        for idx = 1:length(id)
+            filt_resp(id(idx)) = a*b(idx)/c(idx);
+            idx
+        end
+        
   
     end
     
     filt_resp = filt_resp / sqrt(sum(filt_resp.^2));
     
-    h = filt_resp;
+    h = filt_resp';
     
 endfunction
 
